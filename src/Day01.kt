@@ -1,17 +1,37 @@
+
+private val digitWords = listOf("one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
+
 fun main() {
     fun part1(input: List<String>): Int {
-        return input.size
+        return input.sumOf { word ->
+            val firstDigit = word.first { it.digitToIntOrNull() != null }
+            val lastDigit = word.last { it.digitToIntOrNull() != null }
+
+            "$firstDigit$lastDigit".toInt()
+        }
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val allowedDigits = digitWords + listOf("1", "2", "3", "4", "5", "6", "7", "8", "9")
+
+        return input.sumOf { word ->
+            val (_, firstMatch) = word.findAnyOf(allowedDigits)!!
+            val (_, lastMatch) = word.findLastAnyOf(allowedDigits)!!
+            "${firstMatch.digitStringToInt()}${lastMatch.digitStringToInt()}".toInt()
+        }
     }
 
-    // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
+    println("Part 1: ${part1(testInput)}")
 
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+    val input = readInput("Day01_test")
+    println("Part 2: ${part2(input)}")
+}
+
+fun String.digitStringToInt(): Int {
+    return if (this.toIntOrNull() != null) {
+        return this.toInt()
+    } else {
+        digitWords.indexOf(this) + 1
+    }
 }
