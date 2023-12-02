@@ -1,49 +1,15 @@
 fun main() {
     fun part1(input: List<String>): Int {
         return input
-            .map { gameRowString ->
-                val gameParts = gameRowString.split(":")
-                val gameId = gameParts.first().substringAfter("Game").trim().toInt()
-
-                val gameSubsets = gameParts.last().trim().split(";")
-
-                val cubeObjectList = gameSubsets.map {
-                    val cubes = it.split(",").map { it.trim() }
-                    cubes.map {
-                        val count = it.substringBefore(" ").trim().toInt()
-                        val color = it.substringAfter(" ").trim()
-
-                        Cubes(color, count)
-                    }
-                }
-
-                Entry(gameId, cubeObjectList.map { Subset(it) })
-            }
-            .filter { gameMatchesElfConstraints(it) }
+            .map { it.parseGame() }
+            .filter { it.matchesElfConstraints() }
             .sumOf { it.id }
     }
 
     fun part2(input: List<String>): Int {
         return input
-            .map { gameRowString ->
-                val gameParts = gameRowString.split(":")
-                val gameId = gameParts.first().substringAfter("Game").trim().toInt()
-
-                val gameSubsets = gameParts.last().trim().split(";")
-
-                val cubeObjectList = gameSubsets.map {
-                    val cubes = it.split(",").map { it.trim() }
-                    cubes.map {
-                        val count = it.substringBefore(" ").trim().toInt()
-                        val color = it.substringAfter(" ").trim()
-
-                        Cubes(color, count)
-                    }
-                }
-
-                Entry(gameId, cubeObjectList.map { Subset(it) })
-            }
-            .sumOf { getPowerForGame(it) }
+            .map { it.parseGame() }
+            .sumOf { it.calculatePowerForGame() }
     }
 
     val testInput = readInput("Day02_test")
@@ -51,42 +17,47 @@ fun main() {
 
     val input = readInput("Day02_test")
     println("Part 2: ${part2(input)}")
-
 }
 
-private fun gameMatchesElfConstraints(game: Entry): Boolean {
-    val maxRedPerSubset = game.subsets.maxOfOrNull {
-        it.cubes.filter { it.color == "red" }
-            .sumOf { it.count }
-    } ?: 0
+private fun String.parseGame(): Game {
+    val gameParts = this.split(":")
+    val gameId = gameParts.first().substringAfter("Game").trim().toInt()
 
-    val maxGreenPerSubset = game.subsets
-        .map {
-            it.cubes.filter { it.color == "green" }
-                .sumOf { it.count }
-        }.maxOrNull() ?: 0
+    val gameSubsets = gameParts.last().trim().split(";")
 
-    val maxBluePerSubset = game.subsets
-        .map {
-            it.cubes.filter { it.color == "blue" }
-                .sumOf { it.count }
-        }.maxOrNull() ?: 0
+    val cubeObjectList = gameSubsets.map {
+        val cubes = it.split(",").map { it.trim() }
+        cubes.map {
+            val count = it.substringBefore(" ").trim().toInt()
+            val color = it.substringAfter(" ").trim()
+
+            Cubes(color, count)
+        }
+    }
+
+    return Game(gameId, cubeObjectList.map { Subset(it) })
+}
+
+private fun Game.matchesElfConstraints(): Boolean {
+    val maxRedPerSubset = getMaxOfColor("red")
+    val maxGreenPerSubset = getMaxOfColor("green")
+    val maxBluePerSubset = getMaxOfColor("blue")
+
     return maxRedPerSubset <= 12 && maxGreenPerSubset <= 13 && maxBluePerSubset <= 14
 }
 
-private fun getPowerForGame(game: Entry): Int {
-    val maxRedPerSubset = game.getMaxOfColor("red")
-    val maxGreenPerSubset = game.getMaxOfColor("green")
-    val maxBluePerSubset = game.getMaxOfColor("blue")
+private fun Game.calculatePowerForGame(): Int {
+    val maxRedPerSubset = getMaxOfColor("red")
+    val maxGreenPerSubset = getMaxOfColor("green")
+    val maxBluePerSubset = getMaxOfColor("blue")
 
     return maxRedPerSubset * maxGreenPerSubset * maxBluePerSubset
 }
 
-private fun Entry.getMaxOfColor(color: String): Int {
-    return this.subsets.maxOfOrNull {
-        it.cubes.filter { it.color == color }
-            .sumOf { it.count }
-    } ?: 0
+private fun Game.getMaxOfColor(color: String): Int {
+    return this.subsets.maxOf { subset ->
+        subset.cubes.firstOrNull { it.color == color }?.count ?: 0
+    }
 }
 
 data class Subset(
@@ -98,8 +69,7 @@ data class Cubes(
     val count: Int
 )
 
-
-data class Entry(
+data class Game(
     val id: Int,
     val subsets: List<Subset>
 )
