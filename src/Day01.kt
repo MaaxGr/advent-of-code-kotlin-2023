@@ -28,7 +28,7 @@ fun main() {
     println("Part 2: ${part2(input)}")
 }
 
-fun String.digitStringToInt(): Int {
+private fun String.digitStringToInt(): Int {
     return if (this.toIntOrNull() != null) {
         return this.toInt()
     } else {
