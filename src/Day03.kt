@@ -27,6 +27,7 @@ class Day03 {
     data class Game(
         val rows: List<String>,
         val potentialPartNumbers: List<PotentialPartNumber>,
+        val gears: List<PotentialGear>,
         val lastColumnIndex: Int,
         val lastRowIndex: Int,
     )
@@ -36,6 +37,11 @@ class Day03 {
         val rowIndex: Int,
         val columnStartIndex: Int,
         val columnEndIndex: Int
+    )
+
+    data class PotentialGear(
+        val y: Int,
+        val x: Int,
     )
 
     fun Game.getSymbolAt(y: Int, x: Int): Char {
@@ -89,6 +95,16 @@ class Day03 {
                 || symbolBottomLeftDiagonalPresent || symbolBottomRightDiagonalPresent
     }
 
+    fun Game.isGear(potentialGear: PotentialGear, partNumbers: List<PotentialPartNumber>) {
+        val foundNeighbors = listOf<PotentialPartNumber>()
+
+        for (partNumber in partNumbers) {
+
+        }
+
+    }
+
+
     fun parseGame(rows: List<String>): Game {
         val potentialPartNumbers = mutableListOf<PotentialPartNumber>()
 
@@ -105,16 +121,39 @@ class Day03 {
                     numberBuffer += character
                 } else {
                     if (numberBuffer.isNotBlank()) {
-                        potentialPartNumbers.add(
-                            PotentialPartNumber(
-                                number = numberBuffer.toInt(),
-                                rowIndex = rowIndex,
-                                columnStartIndex = numberStartColumnIndex,
-                                columnEndIndex = characterIndex - 1
+                        if (numberBuffer != "-") {
+                            potentialPartNumbers.add(
+                                PotentialPartNumber(
+                                    number = numberBuffer.toInt(),
+                                    rowIndex = rowIndex,
+                                    columnStartIndex = numberStartColumnIndex,
+                                    columnEndIndex = characterIndex - 1
+                                )
                             )
-                        )
+                        }
                         numberBuffer = ""
                     }
+                }
+            }
+
+            if (numberBuffer.isNotBlank()) {
+                potentialPartNumbers.add(
+                    PotentialPartNumber(
+                        number = numberBuffer.toInt(),
+                        rowIndex = rowIndex,
+                        columnStartIndex = numberStartColumnIndex,
+                        columnEndIndex = row.length - 1
+                    )
+                )
+            }
+        }
+
+
+        val gears = mutableListOf<PotentialGear>()
+        rows.forEachIndexed { rowIndex, row ->
+            row.forEachIndexed { columnIndex, character ->
+                if (character == '*') {
+                    gears.add(PotentialGear(rowIndex, columnIndex))
                 }
             }
         }
@@ -122,6 +161,7 @@ class Day03 {
         return Game(
             rows = rows,
             potentialPartNumbers = potentialPartNumbers.toList(),
+            gears = gears.toList(),
             lastRowIndex = rows.size - 1,
             lastColumnIndex = rows[0].length - 1
         )
