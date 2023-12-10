@@ -11,15 +11,8 @@ fun main() {
         }
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
-    }
-
     val testInput = readInput("Day03_test")
     println("Part 1: ${part1(testInput)}")
-
-    val input = readInput("Day03_example")
-    println("Part 2: ${part2(input)}")
 }
 
 class Day03 {
@@ -93,15 +86,6 @@ class Day03 {
         return symbolLeftPresent || symbolRightPresent || symbolTopPresent || symbolBottomPresent
                 || symbolTopLeftDiagonalPresent || symbolTopRightDiagonalPresent
                 || symbolBottomLeftDiagonalPresent || symbolBottomRightDiagonalPresent
-    }
-
-    fun Game.isGear(potentialGear: PotentialGear, partNumbers: List<PotentialPartNumber>) {
-        val foundNeighbors = listOf<PotentialPartNumber>()
-
-        for (partNumber in partNumbers) {
-
-        }
-
     }
 
 
